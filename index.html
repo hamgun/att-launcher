@@ -3,27 +3,29 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>근태 열기</title>
 
-<!-- 1) 메타 리프레시: JS가 막혀도 이동 -->
-<meta http-equiv="refresh" content="0;url=https://script.google.com/macros/s/AKfycbyodOeEt_RR1namTLwhADrPZemaHy4N2Q0WubXwJd4Nlbcw0VbDo18hZRcEkRs-m6lt/exec?nocache=1">
+<!-- 메타 리프레시: JS가 안 돌아도 3초 뒤엔 이동(삼성인터넷용 JS가 먼저 실행되도록 3초로 설정) -->
+<meta http-equiv="refresh" content="3;url=https://script.google.com/macros/s/AKfycbyodOeEt_RR1namTLwhADrPZemaHy4N2Q0WubXwJd4Nlbcw0VbDo18hZRcEkRs-m6lt/exec?nocache=1">
 
 <p>열는 중...</p>
 
 <script>
-  // 반드시 본인 /exec 주소를 유지 (주소가 바뀌면 이 줄만 교체)
+  // 반드시 본인 /exec 주소 (바뀌면 이 줄만 교체)
   const TARGET = "https://script.google.com/macros/s/AKfycbyodOeEt_RR1namTLwhADrPZemaHy4N2Q0WubXwJd4Nlbcw0VbDo18hZRcEkRs-m6lt/exec?nocache=1";
-  // 삼성인터넷에서 최후에 크롬으로 강제 여는 fallback
+  // 삼성인터넷에서 크롬을 직접 띄우는 인텐트
   const INTENT = "intent://script.google.com/macros/s/AKfycbyodOeEt_RR1namTLwhADrPZemaHy4N2Q0WubXwJd4Nlbcw0VbDo18hZRcEkRs-m6lt/exec?nocache=1#Intent;scheme=https;package=com.android.chrome;end";
 
-  // 2) 즉시 이동(히스토리에 안 남김)
-  try { location.replace(TARGET); } catch (e) {}
+  const ua = (navigator.userAgent || "");
 
-  // 3) 백업: 약간 늦게 href 재시도
-  setTimeout(() => { try { location.href = TARGET; } catch (e) {} }, 300);
-
-  // 4) 삼성인터넷 전용: 여전히 안 가면 1초 후 크롬으로 강제 오픈
-  const ua = navigator.userAgent || "";
   if (ua.includes("SamsungBrowser")) {
-    setTimeout(() => { location.href = INTENT; }, 1000);
+    // ✅ 삼성인터넷이면 TARGET(=Apps Script)으로 가지 말고 바로 크롬 인텐트로!
+    location.href = INTENT; // 일부 환경에서 prompt 없이 곧장 크롬 실행
+    // 혹시 막히면 0.5초 후 한 번 더
+    setTimeout(() => { try { location.href = INTENT; } catch(e){} }, 500);
+  } else {
+    // 일반 브라우저는 즉시 TARGET으로 (뒤로가기에 남기지 않음)
+    try { location.replace(TARGET); } catch (e) {}
+    // 백업: 약간 늦게 href로 재시도
+    setTimeout(() => { try { location.href = TARGET; } catch(e){} }, 300);
   }
 </script>
 
